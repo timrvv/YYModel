@@ -313,6 +313,25 @@ static force_inline id YYValueForMultiKeys(__unsafe_unretained NSDictionary *dic
     return value;
 }
 
+static NSDecimal YYDecimalFromString(NSString *value)
+{
+    NSDecimal result;
+    if(value != nil)
+    {
+        NSScanner *theScanner = [[NSScanner alloc] initWithString:value];
+        [theScanner scanDecimal:&result];
+    }
+    return result;
+}
+
+static NSDecimal YYDecimalFromDouble(double value)
+{
+    NSDecimal result;
+    NSString *stringRepresentationOfDouble = [[NSString alloc] initWithFormat:@"%f", value];
+    NSScanner *theScanner = [[NSScanner alloc] initWithString:stringRepresentationOfDouble];
+    [theScanner scanDecimal:&result];
+    return result;
+}
 
 
 
@@ -834,10 +853,10 @@ static void ModelSetValueForProperty(__unsafe_unretained id model,
                         if ([value isKindOfClass:[NSDecimalNumber class]]) {
                             ((void (*)(id, SEL, id))(void *) objc_msgSend)((id)model, meta->_setter, value);
                         } else if ([value isKindOfClass:[NSNumber class]]) {
-                            NSDecimalNumber *decNum = [NSDecimalNumber decimalNumberWithDecimal:[((NSNumber *)value) decimalValue]];
+                            NSDecimalNumber *decNum = [NSDecimalNumber decimalNumberWithDecimal:YYDecimalFromDouble([((NSNumber *) value) doubleValue])];
                             ((void (*)(id, SEL, id))(void *) objc_msgSend)((id)model, meta->_setter, decNum);
                         } else if ([value isKindOfClass:[NSString class]]) {
-                            NSDecimalNumber *decNum = [NSDecimalNumber decimalNumberWithString:value];
+                            NSDecimalNumber *decNum = [NSDecimalNumber decimalNumberWithDecimal:YYDecimalFromString(value)];
                             NSDecimal dec = decNum.decimalValue;
                             if (dec._length == 0 && dec._isNegative) {
                                 decNum = nil; // NaN
